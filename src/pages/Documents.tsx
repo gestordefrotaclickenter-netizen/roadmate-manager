@@ -58,14 +58,24 @@ interface VehicleDocument {
 }
 
 const documentTypeLabels: Record<DocumentType, string> = {
-  ipva: 'IPVA',
-  licenciamento: 'Licenciamento',
+  ipva: 'IPVA / Licenciamento',
+  licenciamento: 'IPVA / Licenciamento',
   multa: 'Multa',
   seguro: 'Seguro',
   dpvat: 'DPVAT',
   vistoria: 'Vistoria',
   outros: 'Outros',
 };
+
+// Tipos únicos para exibição nos selects (sem duplicatas)
+const uniqueDocumentTypes: { value: DocumentType; label: string }[] = [
+  { value: 'ipva', label: 'IPVA / Licenciamento' },
+  { value: 'multa', label: 'Multa' },
+  { value: 'seguro', label: 'Seguro' },
+  { value: 'dpvat', label: 'DPVAT' },
+  { value: 'vistoria', label: 'Vistoria' },
+  { value: 'outros', label: 'Outros' },
+];
 
 const statusLabels: Record<string, string> = {
   pendente: 'Pendente',
@@ -252,7 +262,14 @@ export default function Documents() {
   };
 
   const filteredDocuments = documents.filter(doc => {
-    if (filterType !== "all" && doc.document_type !== filterType) return false;
+    if (filterType !== "all") {
+      // Se filtrar por ipva, inclui também licenciamento (e vice-versa)
+      if (filterType === 'ipva') {
+        if (doc.document_type !== 'ipva' && doc.document_type !== 'licenciamento') return false;
+      } else if (doc.document_type !== filterType) {
+        return false;
+      }
+    }
     if (filterStatus !== "all" && doc.status !== filterStatus) return false;
     if (filterVehicle !== "all" && doc.vehicle_id !== filterVehicle) return false;
     return true;
@@ -314,7 +331,7 @@ export default function Documents() {
                         <SelectValue />
                       </SelectTrigger>
                       <SelectContent>
-                        {Object.entries(documentTypeLabels).map(([value, label]) => (
+                        {uniqueDocumentTypes.map(({ value, label }) => (
                           <SelectItem key={value} value={value}>{label}</SelectItem>
                         ))}
                       </SelectContent>
@@ -479,7 +496,7 @@ export default function Documents() {
                   </SelectTrigger>
                   <SelectContent>
                     <SelectItem value="all">Todos</SelectItem>
-                    {Object.entries(documentTypeLabels).map(([value, label]) => (
+                    {uniqueDocumentTypes.map(({ value, label }) => (
                       <SelectItem key={value} value={value}>{label}</SelectItem>
                     ))}
                   </SelectContent>
