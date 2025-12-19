@@ -306,6 +306,62 @@ export type Database = {
           },
         ]
       }
+      vehicle_documents: {
+        Row: {
+          cost: number | null
+          created_at: string
+          description: string | null
+          document_type: Database["public"]["Enums"]["vehicle_document_type"]
+          due_date: string | null
+          id: string
+          paid_date: string | null
+          reference_year: number | null
+          status: string
+          title: string
+          updated_at: string
+          user_id: string
+          vehicle_id: string
+        }
+        Insert: {
+          cost?: number | null
+          created_at?: string
+          description?: string | null
+          document_type: Database["public"]["Enums"]["vehicle_document_type"]
+          due_date?: string | null
+          id?: string
+          paid_date?: string | null
+          reference_year?: number | null
+          status?: string
+          title: string
+          updated_at?: string
+          user_id: string
+          vehicle_id: string
+        }
+        Update: {
+          cost?: number | null
+          created_at?: string
+          description?: string | null
+          document_type?: Database["public"]["Enums"]["vehicle_document_type"]
+          due_date?: string | null
+          id?: string
+          paid_date?: string | null
+          reference_year?: number | null
+          status?: string
+          title?: string
+          updated_at?: string
+          user_id?: string
+          vehicle_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "vehicle_documents_vehicle_id_fkey"
+            columns: ["vehicle_id"]
+            isOneToOne: false
+            referencedRelation: "vehicles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       vehicles: {
         Row: {
           brand: string
@@ -364,7 +420,14 @@ export type Database = {
       [_ in never]: never
     }
     Enums: {
-      [_ in never]: never
+      vehicle_document_type:
+        | "ipva"
+        | "licenciamento"
+        | "multa"
+        | "seguro"
+        | "dpvat"
+        | "vistoria"
+        | "outros"
     }
     CompositeTypes: {
       [_ in never]: never
@@ -491,6 +554,16 @@ export type CompositeTypes<
 
 export const Constants = {
   public: {
-    Enums: {},
+    Enums: {
+      vehicle_document_type: [
+        "ipva",
+        "licenciamento",
+        "multa",
+        "seguro",
+        "dpvat",
+        "vistoria",
+        "outros",
+      ],
+    },
   },
 } as const

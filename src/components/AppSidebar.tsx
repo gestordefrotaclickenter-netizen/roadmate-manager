@@ -1,4 +1,4 @@
-import { LayoutDashboard, Car, Users, ClipboardCheck, Wrench, Fuel, FileText, LogOut } from "lucide-react";
+import { LayoutDashboard, Car, Users, ClipboardCheck, Wrench, Fuel, FileText, FileArchive, LogOut } from "lucide-react";
 import { NavLink } from "@/components/NavLink";
 import { useLocation, useNavigate } from "react-router-dom";
 import {
@@ -21,6 +21,7 @@ const menuItems = [
   { title: "Dashboard", url: "/dashboard", icon: LayoutDashboard },
   { title: "Veículos", url: "/vehicles", icon: Car },
   { title: "Motoristas", url: "/drivers", icon: Users },
+  { title: "Documentos", url: "/documents", icon: FileArchive },
   { title: "Checklists", url: "/checklists", icon: ClipboardCheck },
   { title: "Manutenções", url: "/maintenances", icon: Wrench },
   { title: "Abastecimentos", url: "/refuelings", icon: Fuel },
