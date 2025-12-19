@@ -10,6 +10,7 @@ import Auth from "./pages/Auth";
 import Dashboard from "./pages/Dashboard";
 import Vehicles from "./pages/Vehicles";
 import Drivers from "./pages/Drivers";
+import Documents from "./pages/Documents";
 import Checklists from "./pages/Checklists";
 import Maintenances from "./pages/Maintenances";
 import Refuelings from "./pages/Refuelings";
@@ -85,6 +86,14 @@ const App = () => (
             element={
               <ProtectedRoute>
                 <Drivers />
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="/documents"
+            element={
+              <ProtectedRoute>
+                <Documents />
               </ProtectedRoute>
             }
           />
