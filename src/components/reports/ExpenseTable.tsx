@@ -9,7 +9,7 @@ import { ptBR } from "date-fns/locale";
 interface ExpenseItem {
   id: string;
   date: string;
-  type: "maintenance" | "refueling";
+  type: "maintenance" | "refueling" | "document";
   description: string;
   vehicle: string;
   driver?: string;
@@ -59,8 +59,8 @@ export function ExpenseTable({ expenses, onExportCSV }: ExpenseTableProps) {
                       {format(new Date(expense.date), "dd/MM/yyyy", { locale: ptBR })}
                     </TableCell>
                     <TableCell>
-                      <Badge variant={expense.type === "maintenance" ? "secondary" : "outline"}>
-                        {expense.type === "maintenance" ? "Manutenção" : "Combustível"}
+                      <Badge variant={expense.type === "maintenance" ? "secondary" : expense.type === "document" ? "default" : "outline"}>
+                        {expense.type === "maintenance" ? "Manutenção" : expense.type === "document" ? "Documentação" : "Combustível"}
                       </Badge>
                     </TableCell>
                     <TableCell className="max-w-[200px] truncate">

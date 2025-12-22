@@ -43,12 +43,25 @@ interface Refueling {
   fuel_type: string;
 }
 
+interface VehicleDocument {
+  id: string;
+  cost: number | null;
+  paid_date: string | null;
+  due_date: string | null;
+  document_type: string;
+  vehicle_id: string;
+  title: string;
+  status: string;
+}
+
 interface FinancialData {
   totalMaintenances: number;
   totalRefuelings: number;
+  totalDocuments: number;
   total: number;
   maintenanceCount: number;
   refuelingCount: number;
+  documentCount: number;
   avgMaintenanceCost: number;
   avgRefuelingCost: number;
   totalLiters: number;
@@ -57,7 +70,7 @@ interface FinancialData {
 interface ExpenseItem {
   id: string;
   date: string;
-  type: "maintenance" | "refueling";
+  type: "maintenance" | "refueling" | "document";
   description: string;
   vehicle: string;
   driver?: string;
@@ -73,6 +86,7 @@ interface VehicleExpense {
   totalCost: number;
   maintenanceCost: number;
   refuelingCost: number;
+  documentCost: number;
 }
 
 interface DriverExpense {
@@ -87,6 +101,7 @@ interface MonthlyData {
   month: string;
   maintenances: number;
   refuelings: number;
+  documents: number;
 }
 
 export default function Reports() {
@@ -94,6 +109,7 @@ export default function Reports() {
   const [drivers, setDrivers] = useState<Driver[]>([]);
   const [maintenances, setMaintenances] = useState<Maintenance[]>([]);
   const [refuelings, setRefuelings] = useState<Refueling[]>([]);
+  const [documents, setDocuments] = useState<VehicleDocument[]>([]);
   const [selectedVehicle, setSelectedVehicle] = useState<string>("all");
   const [selectedDriver, setSelectedDriver] = useState<string>("all");
   const [startDate, setStartDate] = useState<string>("");
@@ -109,17 +125,19 @@ export default function Reports() {
     const { data: { user } } = await supabase.auth.getUser();
     if (!user) return;
 
-    const [vehiclesRes, driversRes, maintenancesRes, refuelingsRes] = await Promise.all([
+    const [vehiclesRes, driversRes, maintenancesRes, refuelingsRes, documentsRes] = await Promise.all([
       supabase.from("vehicles").select("id, plate, brand, model").eq("user_id", user.id),
       supabase.from("drivers").select("id, name").eq("user_id", user.id),
       supabase.from("maintenances").select("*").eq("user_id", user.id),
       supabase.from("refuelings").select("*").eq("user_id", user.id),
+      supabase.from("vehicle_documents").select("*").eq("user_id", user.id),
     ]);
 
     if (vehiclesRes.data) setVehicles(vehiclesRes.data);
     if (driversRes.data) setDrivers(driversRes.data);
     if (maintenancesRes.data) setMaintenances(maintenancesRes.data);
     if (refuelingsRes.data) setRefuelings(refuelingsRes.data);
+    if (documentsRes.data) setDocuments(documentsRes.data);
     setLoading(false);
   };
 
@@ -149,37 +167,57 @@ export default function Reports() {
     });
   }, [refuelings, selectedVehicle, selectedDriver, startDate, endDate]);
 
+  const filteredDocuments = useMemo(() => {
+    return documents.filter((d) => {
+      if (selectedVehicle !== "all" && d.vehicle_id !== selectedVehicle) return false;
+      const docDate = d.paid_date || d.due_date;
+      if (startDate && docDate && docDate < startDate) return false;
+      if (endDate && docDate && docDate > endDate) return false;
+      return d.cost && d.cost > 0;
+    });
+  }, [documents, selectedVehicle, startDate, endDate]);
+
+  const paidDocuments = useMemo(() => {
+    return documents.filter((d) => d.cost && d.cost > 0);
+  }, [documents]);
+
   const generalData: FinancialData = useMemo(() => {
     const totalMaintenances = maintenances.reduce((sum, m) => sum + Number(m.cost), 0);
     const totalRefuelings = refuelings.reduce((sum, r) => sum + Number(r.cost), 0);
+    const totalDocuments = paidDocuments.reduce((sum, d) => sum + Number(d.cost || 0), 0);
     const totalLiters = refuelings.reduce((sum, r) => sum + Number(r.liters), 0);
     return {
       totalMaintenances,
       totalRefuelings,
-      total: totalMaintenances + totalRefuelings,
+      totalDocuments,
+      total: totalMaintenances + totalRefuelings + totalDocuments,
       maintenanceCount: maintenances.length,
       refuelingCount: refuelings.length,
+      documentCount: paidDocuments.length,
       avgMaintenanceCost: maintenances.length > 0 ? totalMaintenances / maintenances.length : 0,
       avgRefuelingCost: refuelings.length > 0 ? totalRefuelings / refuelings.length : 0,
       totalLiters,
     };
-  }, [maintenances, refuelings]);
+  }, [maintenances, refuelings, paidDocuments]);
 
   const filteredData: FinancialData = useMemo(() => {
     const totalMaintenances = filteredMaintenances.reduce((sum, m) => sum + Number(m.cost), 0);
     const totalRefuelings = filteredRefuelings.reduce((sum, r) => sum + Number(r.cost), 0);
+    const totalDocuments = filteredDocuments.reduce((sum, d) => sum + Number(d.cost || 0), 0);
     const totalLiters = filteredRefuelings.reduce((sum, r) => sum + Number(r.liters), 0);
     return {
       totalMaintenances,
       totalRefuelings,
-      total: totalMaintenances + totalRefuelings,
+      totalDocuments,
+      total: totalMaintenances + totalRefuelings + totalDocuments,
       maintenanceCount: filteredMaintenances.length,
       refuelingCount: filteredRefuelings.length,
+      documentCount: filteredDocuments.length,
       avgMaintenanceCost: filteredMaintenances.length > 0 ? totalMaintenances / filteredMaintenances.length : 0,
       avgRefuelingCost: filteredRefuelings.length > 0 ? totalRefuelings / filteredRefuelings.length : 0,
       totalLiters,
     };
-  }, [filteredMaintenances, filteredRefuelings]);
+  }, [filteredMaintenances, filteredRefuelings, filteredDocuments]);
 
   const monthlyData: MonthlyData[] = useMemo(() => {
     const last6Months = Array.from({ length: 6 }, (_, i) => {
@@ -200,14 +238,31 @@ export default function Reports() {
         const date = parseISO(r.refuel_date);
         return date >= start && date <= end;
       });
+      const monthDocuments = filteredDocuments.filter((d) => {
+        const docDate = d.paid_date || d.due_date;
+        if (!docDate) return false;
+        const date = parseISO(docDate);
+        return date >= start && date <= end;
+      });
 
       return {
         month: label,
         maintenances: monthMaintenances.reduce((sum, m) => sum + Number(m.cost), 0),
         refuelings: monthRefuelings.reduce((sum, r) => sum + Number(r.cost), 0),
+        documents: monthDocuments.reduce((sum, d) => sum + Number(d.cost || 0), 0),
       };
     });
-  }, [filteredMaintenances, filteredRefuelings]);
+  }, [filteredMaintenances, filteredRefuelings, filteredDocuments]);
+
+  const documentTypeLabels: Record<string, string> = {
+    ipva: "IPVA / Licenciamento",
+    licenciamento: "IPVA / Licenciamento",
+    multa: "Multa",
+    seguro: "Seguro",
+    dpvat: "DPVAT",
+    vistoria: "Vistoria",
+    outros: "Outros",
+  };
 
   const expenses: ExpenseItem[] = useMemo(() => {
     const vehicleMap = new Map(vehicles.map((v) => [v.id, `${v.plate} - ${v.brand} ${v.model}`]));
@@ -233,42 +288,58 @@ export default function Reports() {
       liters: Number(r.liters),
     }));
 
-    return [...maintenanceItems, ...refuelingItems].sort(
+    const documentItems: ExpenseItem[] = filteredDocuments.map((d) => ({
+      id: d.id,
+      date: d.paid_date || d.due_date || "",
+      type: "document" as const,
+      description: `${documentTypeLabels[d.document_type] || d.document_type} - ${d.title}`,
+      vehicle: vehicleMap.get(d.vehicle_id) || "Desconhecido",
+      cost: Number(d.cost || 0),
+    }));
+
+    return [...maintenanceItems, ...refuelingItems, ...documentItems].sort(
       (a, b) => new Date(b.date).getTime() - new Date(a.date).getTime()
     );
-  }, [filteredMaintenances, filteredRefuelings, vehicles, drivers]);
+  }, [filteredMaintenances, filteredRefuelings, filteredDocuments, vehicles, drivers]);
 
   const vehicleRanking: VehicleExpense[] = useMemo(() => {
-    const expenseByVehicle = new Map<string, { maintenance: number; refueling: number }>();
+    const expenseByVehicle = new Map<string, { maintenance: number; refueling: number; document: number }>();
 
     filteredMaintenances.forEach((m) => {
-      const current = expenseByVehicle.get(m.vehicle_id) || { maintenance: 0, refueling: 0 };
+      const current = expenseByVehicle.get(m.vehicle_id) || { maintenance: 0, refueling: 0, document: 0 };
       current.maintenance += Number(m.cost);
       expenseByVehicle.set(m.vehicle_id, current);
     });
 
     filteredRefuelings.forEach((r) => {
-      const current = expenseByVehicle.get(r.vehicle_id) || { maintenance: 0, refueling: 0 };
+      const current = expenseByVehicle.get(r.vehicle_id) || { maintenance: 0, refueling: 0, document: 0 };
       current.refueling += Number(r.cost);
       expenseByVehicle.set(r.vehicle_id, current);
     });
 
+    filteredDocuments.forEach((d) => {
+      const current = expenseByVehicle.get(d.vehicle_id) || { maintenance: 0, refueling: 0, document: 0 };
+      current.document += Number(d.cost || 0);
+      expenseByVehicle.set(d.vehicle_id, current);
+    });
+
     return vehicles
       .map((v) => {
-        const expenses = expenseByVehicle.get(v.id) || { maintenance: 0, refueling: 0 };
+        const expenses = expenseByVehicle.get(v.id) || { maintenance: 0, refueling: 0, document: 0 };
         return {
           id: v.id,
           plate: v.plate,
           brand: v.brand,
           model: v.model,
-          totalCost: expenses.maintenance + expenses.refueling,
+          totalCost: expenses.maintenance + expenses.refueling + expenses.document,
           maintenanceCost: expenses.maintenance,
           refuelingCost: expenses.refueling,
+          documentCost: expenses.document,
         };
       })
       .filter((v) => v.totalCost > 0)
       .sort((a, b) => b.totalCost - a.totalCost);
-  }, [filteredMaintenances, filteredRefuelings, vehicles]);
+  }, [filteredMaintenances, filteredRefuelings, filteredDocuments, vehicles]);
 
   const driverRanking: DriverExpense[] = useMemo(() => {
     const expenseByDriver = new Map<string, { cost: number; count: number; liters: number }>();
@@ -346,6 +417,7 @@ export default function Reports() {
               monthlyData={monthlyData} 
               totalMaintenances={generalData.totalMaintenances}
               totalRefuelings={generalData.totalRefuelings}
+              totalDocuments={generalData.totalDocuments}
             />
             <div className="grid gap-6 lg:grid-cols-2">
               <VehicleRanking vehicles={vehicleRanking} />
@@ -378,6 +450,7 @@ export default function Reports() {
               monthlyData={monthlyData} 
               totalMaintenances={filteredData.totalMaintenances}
               totalRefuelings={filteredData.totalRefuelings}
+              totalDocuments={filteredData.totalDocuments}
             />
 
             <ExpenseTable expenses={expenses} onExportCSV={exportToCSV} />

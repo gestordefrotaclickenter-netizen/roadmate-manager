@@ -10,6 +10,7 @@ interface VehicleExpense {
   totalCost: number;
   maintenanceCost: number;
   refuelingCost: number;
+  documentCost: number;
 }
 
 interface VehicleRankingProps {
@@ -50,7 +51,8 @@ export function VehicleRanking({ vehicles }: VehicleRankingProps) {
                     </p>
                     <p className="text-xs text-muted-foreground">
                       Man: R$ {vehicle.maintenanceCost.toLocaleString("pt-BR", { minimumFractionDigits: 2 })} | 
-                      Comb: R$ {vehicle.refuelingCost.toLocaleString("pt-BR", { minimumFractionDigits: 2 })}
+                      Comb: R$ {vehicle.refuelingCost.toLocaleString("pt-BR", { minimumFractionDigits: 2 })} | 
+                      Doc: R$ {vehicle.documentCost.toLocaleString("pt-BR", { minimumFractionDigits: 2 })}
                     </p>
                   </div>
                 </div>

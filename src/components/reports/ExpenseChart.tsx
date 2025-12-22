@@ -6,20 +6,23 @@ interface MonthlyData {
   month: string;
   maintenances: number;
   refuelings: number;
+  documents: number;
 }
 
 interface ExpenseChartProps {
   monthlyData: MonthlyData[];
   totalMaintenances: number;
   totalRefuelings: number;
+  totalDocuments: number;
 }
 
-const COLORS = ["hsl(var(--warning))", "hsl(var(--accent))"];
+const COLORS = ["hsl(var(--warning))", "hsl(var(--accent))", "hsl(var(--primary))"];
 
-export function ExpenseChart({ monthlyData, totalMaintenances, totalRefuelings }: ExpenseChartProps) {
+export function ExpenseChart({ monthlyData, totalMaintenances, totalRefuelings, totalDocuments }: ExpenseChartProps) {
   const pieData = [
     { name: "Manutenções", value: totalMaintenances },
     { name: "Combustível", value: totalRefuelings },
+    { name: "Documentação", value: totalDocuments },
   ].filter(item => item.value > 0);
 
   return (
@@ -57,6 +60,7 @@ export function ExpenseChart({ monthlyData, totalMaintenances, totalRefuelings }
                 <Legend />
                 <Bar dataKey="maintenances" name="Manutenções" fill="hsl(var(--warning))" radius={[4, 4, 0, 0]} />
                 <Bar dataKey="refuelings" name="Combustível" fill="hsl(var(--accent))" radius={[4, 4, 0, 0]} />
+                <Bar dataKey="documents" name="Documentação" fill="hsl(var(--primary))" radius={[4, 4, 0, 0]} />
               </BarChart>
             </ResponsiveContainer>
           ) : (

@@ -1,12 +1,14 @@
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { TrendingUp, Fuel, DollarSign, Wrench, Car, User } from "lucide-react";
+import { TrendingUp, Fuel, DollarSign, Wrench, FileText } from "lucide-react";
 
 interface FinancialData {
   totalMaintenances: number;
   totalRefuelings: number;
+  totalDocuments: number;
   total: number;
   maintenanceCount: number;
   refuelingCount: number;
+  documentCount: number;
   avgMaintenanceCost: number;
   avgRefuelingCost: number;
   totalLiters: number;
@@ -22,7 +24,7 @@ export function SummaryCards({ data, title, showAvg = false }: SummaryCardsProps
   return (
     <div className="space-y-4">
       <h3 className="font-semibold text-lg">{title}</h3>
-      <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
+      <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-5">
         <Card className="border-l-4 border-l-warning">
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
             <CardTitle className="text-sm font-medium">Manutenções</CardTitle>
@@ -65,8 +67,23 @@ export function SummaryCards({ data, title, showAvg = false }: SummaryCardsProps
 
         <Card className="border-l-4 border-l-primary">
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+            <CardTitle className="text-sm font-medium">Documentação</CardTitle>
+            <FileText className="h-4 w-4 text-primary" />
+          </CardHeader>
+          <CardContent>
+            <div className="text-2xl font-bold">
+              R$ {data.totalDocuments.toLocaleString("pt-BR", { minimumFractionDigits: 2 })}
+            </div>
+            <p className="text-xs text-muted-foreground">
+              {data.documentCount} documentos
+            </p>
+          </CardContent>
+        </Card>
+
+        <Card className="border-l-4 border-l-muted-foreground">
+          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
             <CardTitle className="text-sm font-medium">Total Litros</CardTitle>
-            <TrendingUp className="h-4 w-4 text-primary" />
+            <TrendingUp className="h-4 w-4 text-muted-foreground" />
           </CardHeader>
           <CardContent>
             <div className="text-2xl font-bold">
