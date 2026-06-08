@@ -124,11 +124,17 @@ export default function Checklists() {
   };
 
   const handleAddItem = async () => {
-    if (!newItem.trim() || !selectedChecklist) return;
+    if (!selectedChecklist) return;
+
+    const validation = checklistItemSchema.safeParse({ item_text: newItem });
+    if (!validation.success) {
+      toast.error(getZodErrorMessage(validation.error));
+      return;
+    }
 
     const { error } = await supabase
       .from("checklist_items")
-      .insert([{ checklist_id: selectedChecklist, item_text: newItem }]);
+      .insert([{ checklist_id: selectedChecklist, item_text: validation.data.item_text }]);
 
     if (error) {
       toast.error("Erro ao adicionar item");
