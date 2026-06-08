@@ -84,10 +84,28 @@ export default function Maintenances() {
     const { data: { user } } = await supabase.auth.getUser();
     if (!user) return;
 
-    const dataToSend = {
-      ...formData,
+    const parsed = {
+      vehicle_id: formData.vehicle_id,
+      maintenance_type: formData.maintenance_type,
+      description: formData.description,
+      maintenance_date: formData.maintenance_date,
       cost: parseFloat(formData.cost),
       odometer: formData.odometer ? parseInt(formData.odometer) : null,
+    };
+
+    const validation = maintenanceSchema.safeParse(parsed);
+    if (!validation.success) {
+      toast.error(getZodErrorMessage(validation.error));
+      return;
+    }
+    const v = validation.data;
+    const dataToSend = {
+      vehicle_id: v.vehicle_id,
+      maintenance_type: v.maintenance_type,
+      description: v.description ?? "",
+      maintenance_date: v.maintenance_date,
+      cost: v.cost,
+      odometer: v.odometer ?? null,
       user_id: user.id,
     };
 
