@@ -72,7 +72,7 @@ export default function Drivers() {
     if (editingDriver) {
       const { error } = await supabase
         .from("drivers")
-        .update(formData)
+        .update(cleanData)
         .eq("id", editingDriver.id);
 
       if (error) {
@@ -86,7 +86,7 @@ export default function Drivers() {
     } else {
       const { error } = await supabase
         .from("drivers")
-        .insert([{ ...formData, user_id: user.id }]);
+        .insert([{ ...cleanData, user_id: user.id }]);
 
       if (error) {
         toast.error("Erro ao cadastrar motorista");
