@@ -10,6 +10,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
 import { Plus, Pencil, Trash2 } from "lucide-react";
+import { refuelingSchema, getZodErrorMessage } from "@/lib/validations";
 
 interface Refueling {
   id: string;
@@ -104,11 +105,28 @@ export default function Refuelings() {
     const { data: { user } } = await supabase.auth.getUser();
     if (!user) return;
 
-    const dataToSend = {
-      ...formData,
+    const parsed = {
+      vehicle_id: formData.vehicle_id,
+      fuel_type: formData.fuel_type,
+      refuel_date: formData.refuel_date,
       liters: parseFloat(formData.liters),
       cost: parseFloat(formData.cost),
       odometer: parseInt(formData.odometer),
+    };
+
+    const validation = refuelingSchema.safeParse(parsed);
+    if (!validation.success) {
+      toast.error(getZodErrorMessage(validation.error));
+      return;
+    }
+    const v = validation.data;
+    const dataToSend = {
+      vehicle_id: v.vehicle_id,
+      fuel_type: v.fuel_type,
+      refuel_date: v.refuel_date,
+      liters: v.liters,
+      cost: v.cost,
+      odometer: v.odometer,
       driver_id: formData.driver_id || null,
       user_id: user.id,
     };

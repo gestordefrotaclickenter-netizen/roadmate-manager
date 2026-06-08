@@ -10,6 +10,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
 import { Plus, Pencil, Trash2 } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
+import { vehicleSchema, getZodErrorMessage } from "@/lib/validations";
 
 interface Vehicle {
   id: string;
@@ -62,10 +63,26 @@ export default function Vehicles() {
     const { data: { user } } = await supabase.auth.getUser();
     if (!user) return;
 
+    const validation = vehicleSchema.safeParse(formData);
+    if (!validation.success) {
+      toast.error(getZodErrorMessage(validation.error));
+      return;
+    }
+    const v = validation.data;
+    const cleanData = {
+      plate: v.plate,
+      brand: v.brand,
+      model: v.model,
+      year: v.year,
+      color: v.color ?? "",
+      status: v.status,
+      odometer: v.odometer,
+    };
+
     if (editingVehicle) {
       const { error } = await supabase
         .from("vehicles")
-        .update(formData)
+        .update(cleanData)
         .eq("id", editingVehicle.id);
 
       if (error) {
@@ -79,7 +96,7 @@ export default function Vehicles() {
     } else {
       const { error } = await supabase
         .from("vehicles")
-        .insert([{ ...formData, user_id: user.id }]);
+        .insert([{ ...cleanData, user_id: user.id }]);
 
       if (error) {
         toast.error("Erro ao cadastrar veículo");

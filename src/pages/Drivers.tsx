@@ -10,6 +10,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
 import { Plus, Pencil, Trash2 } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
+import { driverSchema, getZodErrorMessage } from "@/lib/validations";
 
 interface Driver {
   id: string;
@@ -60,10 +61,28 @@ export default function Drivers() {
     const { data: { user } } = await supabase.auth.getUser();
     if (!user) return;
 
+    const validation = driverSchema.safeParse(formData);
+    if (!validation.success) {
+      toast.error(getZodErrorMessage(validation.error));
+      return;
+    }
+    const v = validation.data;
+    const cleanData = {
+      name: v.name,
+      license_number: v.license_number,
+      license_category: v.license_category,
+      phone: v.phone ?? "",
+      email: v.email ?? "",
+      status: v.status,
+    };
+
+
+
+
     if (editingDriver) {
       const { error } = await supabase
         .from("drivers")
-        .update(formData)
+        .update(cleanData)
         .eq("id", editingDriver.id);
 
       if (error) {
@@ -77,7 +96,7 @@ export default function Drivers() {
     } else {
       const { error } = await supabase
         .from("drivers")
-        .insert([{ ...formData, user_id: user.id }]);
+        .insert([{ ...cleanData, user_id: user.id }]);
 
       if (error) {
         toast.error("Erro ao cadastrar motorista");

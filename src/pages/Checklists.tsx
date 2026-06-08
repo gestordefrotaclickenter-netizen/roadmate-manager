@@ -9,6 +9,7 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from 
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
 import { Plus, Share2, Trash2 } from "lucide-react";
+import { checklistSchema, checklistItemSchema, getZodErrorMessage } from "@/lib/validations";
 import { Checkbox } from "@/components/ui/checkbox";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 
@@ -103,9 +104,14 @@ export default function Checklists() {
     const { data: { user } } = await supabase.auth.getUser();
     if (!user) return;
 
+    const validation = checklistSchema.safeParse(formData);
+    if (!validation.success) {
+      toast.error(getZodErrorMessage(validation.error));
+      return;
+    }
     const { error } = await supabase
       .from("checklists")
-      .insert([{ ...formData, user_id: user.id }]);
+      .insert([{ title: validation.data.title, description: validation.data.description ?? "", user_id: user.id }]);
 
     if (error) {
       toast.error("Erro ao criar checklist");
@@ -118,11 +124,17 @@ export default function Checklists() {
   };
 
   const handleAddItem = async () => {
-    if (!newItem.trim() || !selectedChecklist) return;
+    if (!selectedChecklist) return;
+
+    const validation = checklistItemSchema.safeParse({ item_text: newItem });
+    if (!validation.success) {
+      toast.error(getZodErrorMessage(validation.error));
+      return;
+    }
 
     const { error } = await supabase
       .from("checklist_items")
-      .insert([{ checklist_id: selectedChecklist, item_text: newItem }]);
+      .insert([{ checklist_id: selectedChecklist, item_text: validation.data.item_text }]);
 
     if (error) {
       toast.error("Erro ao adicionar item");
