@@ -66,7 +66,17 @@ export default function Drivers() {
       toast.error(getZodErrorMessage(validation.error));
       return;
     }
-    const cleanData = validation.data;
+    const v = validation.data;
+    const cleanData = {
+      name: v.name,
+      license_number: v.license_number,
+      license_category: v.license_category,
+      phone: v.phone ?? "",
+      email: v.email ?? "",
+      status: v.status,
+    };
+
+
 
 
     if (editingDriver) {
