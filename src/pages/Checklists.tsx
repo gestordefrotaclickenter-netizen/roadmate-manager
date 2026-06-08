@@ -104,9 +104,14 @@ export default function Checklists() {
     const { data: { user } } = await supabase.auth.getUser();
     if (!user) return;
 
+    const validation = checklistSchema.safeParse(formData);
+    if (!validation.success) {
+      toast.error(getZodErrorMessage(validation.error));
+      return;
+    }
     const { error } = await supabase
       .from("checklists")
-      .insert([{ ...formData, user_id: user.id }]);
+      .insert([{ title: validation.data.title, description: validation.data.description ?? "", user_id: user.id }]);
 
     if (error) {
       toast.error("Erro ao criar checklist");
