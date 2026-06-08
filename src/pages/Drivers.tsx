@@ -61,6 +61,14 @@ export default function Drivers() {
     const { data: { user } } = await supabase.auth.getUser();
     if (!user) return;
 
+    const validation = driverSchema.safeParse(formData);
+    if (!validation.success) {
+      toast.error(getZodErrorMessage(validation.error));
+      return;
+    }
+    const cleanData = validation.data;
+
+
     if (editingDriver) {
       const { error } = await supabase
         .from("drivers")
