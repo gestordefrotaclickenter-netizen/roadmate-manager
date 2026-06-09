@@ -14,6 +14,7 @@ import Documents from "./pages/Documents";
 import Checklists from "./pages/Checklists";
 import Maintenances from "./pages/Maintenances";
 import Refuelings from "./pages/Refuelings";
+import Tires from "./pages/Tires";
 import Reports from "./pages/Reports";
 import SharedChecklist from "./pages/SharedChecklist";
 import NotFound from "./pages/NotFound";
