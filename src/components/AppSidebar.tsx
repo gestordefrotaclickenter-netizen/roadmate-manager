@@ -25,6 +25,7 @@ const menuItems = [
   { title: "Checklists", url: "/checklists", icon: ClipboardCheck },
   { title: "Manutenções", url: "/maintenances", icon: Wrench },
   { title: "Abastecimentos", url: "/refuelings", icon: Fuel },
+  { title: "Pneus", url: "/tires", icon: CircleDot },
   { title: "Relatórios", url: "/reports", icon: FileText },
 ];
 
