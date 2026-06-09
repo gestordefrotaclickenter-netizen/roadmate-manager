@@ -57,8 +57,26 @@ export default function Checklists() {
   useEffect(() => {
     if (selectedChecklist) {
       fetchItems(selectedChecklist);
+      fetchSharedDrivers(selectedChecklist);
     }
   }, [selectedChecklist]);
+
+  const fetchSharedDrivers = async (checklistId: string) => {
+    const { data } = await supabase
+      .from("checklist_shares")
+      .select("id, driver_id, drivers(name)")
+      .eq("checklist_id", checklistId);
+
+    if (data) {
+      setSharedDrivers(
+        data.map((s: any) => ({
+          id: s.id,
+          driver_id: s.driver_id,
+          driver_name: s.drivers?.name ?? "Motorista",
+        }))
+      );
+    }
+  };
 
   const fetchChecklists = async () => {
     const { data: { user } } = await supabase.auth.getUser();
