@@ -45,6 +45,7 @@ export default function Checklists() {
   const [isDialogOpen, setIsDialogOpen] = useState(false);
   const [isShareDialogOpen, setIsShareDialogOpen] = useState(false);
   const [selectedDriver, setSelectedDriver] = useState("");
+  const [sharedDrivers, setSharedDrivers] = useState<SharedDriver[]>([]);
   const [formData, setFormData] = useState({ title: "", description: "" });
   const [newItem, setNewItem] = useState("");
 
