@@ -15,6 +15,7 @@ import Checklists from "./pages/Checklists";
 import Maintenances from "./pages/Maintenances";
 import Refuelings from "./pages/Refuelings";
 import Reports from "./pages/Reports";
+import SharedChecklist from "./pages/SharedChecklist";
 import NotFound from "./pages/NotFound";
 
 const queryClient = new QueryClient();
