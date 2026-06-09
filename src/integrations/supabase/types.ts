@@ -87,6 +87,7 @@ export type Database = {
           created_at: string
           description: string | null
           id: string
+          share_token: string
           title: string
           updated_at: string
           user_id: string
@@ -95,6 +96,7 @@ export type Database = {
           created_at?: string
           description?: string | null
           id?: string
+          share_token?: string
           title: string
           updated_at?: string
           user_id: string
@@ -103,6 +105,7 @@ export type Database = {
           created_at?: string
           description?: string | null
           id?: string
+          share_token?: string
           title?: string
           updated_at?: string
           user_id?: string
@@ -417,7 +420,26 @@ export type Database = {
       [_ in never]: never
     }
     Functions: {
-      [_ in never]: never
+      get_shared_checklist: {
+        Args: { _token: string }
+        Returns: {
+          description: string
+          id: string
+          title: string
+        }[]
+      }
+      get_shared_checklist_items: {
+        Args: { _token: string }
+        Returns: {
+          id: string
+          is_checked: boolean
+          item_text: string
+        }[]
+      }
+      toggle_shared_checklist_item: {
+        Args: { _checked: boolean; _item_id: string; _token: string }
+        Returns: undefined
+      }
     }
     Enums: {
       vehicle_document_type:

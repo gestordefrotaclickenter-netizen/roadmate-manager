@@ -15,6 +15,7 @@ import Checklists from "./pages/Checklists";
 import Maintenances from "./pages/Maintenances";
 import Refuelings from "./pages/Refuelings";
 import Reports from "./pages/Reports";
+import SharedChecklist from "./pages/SharedChecklist";
 import NotFound from "./pages/NotFound";
 
 const queryClient = new QueryClient();
@@ -57,6 +58,7 @@ const App = () => (
       <BrowserRouter>
         <Routes>
           <Route path="/auth" element={<Auth />} />
+          <Route path="/checklist/:token" element={<SharedChecklist />} />
           <Route
             path="/"
             element={
