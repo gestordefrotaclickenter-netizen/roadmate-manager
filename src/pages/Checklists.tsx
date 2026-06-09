@@ -17,6 +17,13 @@ interface Checklist {
   id: string;
   title: string;
   description: string;
+  share_token: string;
+}
+
+interface SharedDriver {
+  id: string;
+  driver_id: string;
+  driver_name: string;
 }
 
 interface ChecklistItem {
