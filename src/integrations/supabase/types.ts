@@ -309,6 +309,56 @@ export type Database = {
           },
         ]
       }
+      tires: {
+        Row: {
+          brand: string | null
+          change_date: string
+          created_at: string
+          id: string
+          install_odometer: number
+          position: string
+          purchase_price: number
+          removal_odometer: number | null
+          updated_at: string
+          user_id: string
+          vehicle_id: string
+        }
+        Insert: {
+          brand?: string | null
+          change_date: string
+          created_at?: string
+          id?: string
+          install_odometer?: number
+          position: string
+          purchase_price?: number
+          removal_odometer?: number | null
+          updated_at?: string
+          user_id: string
+          vehicle_id: string
+        }
+        Update: {
+          brand?: string | null
+          change_date?: string
+          created_at?: string
+          id?: string
+          install_odometer?: number
+          position?: string
+          purchase_price?: number
+          removal_odometer?: number | null
+          updated_at?: string
+          user_id?: string
+          vehicle_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "tires_vehicle_id_fkey"
+            columns: ["vehicle_id"]
+            isOneToOne: false
+            referencedRelation: "vehicles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       vehicle_documents: {
         Row: {
           cost: number | null

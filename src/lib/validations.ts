@@ -95,6 +95,30 @@ export const refuelingSchema = z.object({
   refuel_date: requiredText("Data", 30),
 });
 
+// Tires
+export const tireSchema = z.object({
+  vehicle_id: requiredText("Veículo", 100),
+  brand: optionalText(50),
+  position: requiredText("Posição", 30),
+  change_date: requiredText("Data da troca", 30),
+  install_odometer: z
+    .number({ message: "Km de instalação inválido" })
+    .int()
+    .min(0, { message: "Km de instalação não pode ser negativo" })
+    .max(10000000, { message: "Km de instalação inválido" }),
+  removal_odometer: z
+    .number({ message: "Km de remoção inválido" })
+    .int()
+    .min(0, { message: "Km de remoção não pode ser negativo" })
+    .max(10000000, { message: "Km de remoção inválido" })
+    .optional()
+    .nullable(),
+  purchase_price: z
+    .number({ message: "Preço inválido" })
+    .min(0, { message: "Preço não pode ser negativo" })
+    .max(100000000, { message: "Preço inválido" }),
+});
+
 // Checklists
 export const checklistSchema = z.object({
   title: requiredText("Título", 150),
