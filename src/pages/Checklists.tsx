@@ -330,25 +330,70 @@ export default function Checklists() {
                       <DialogHeader>
                         <DialogTitle>Compartilhar Checklist</DialogTitle>
                       </DialogHeader>
-                      <div className="space-y-4">
+                      <div className="space-y-6">
                         <div className="space-y-2">
-                          <Label>Selecione o motorista</Label>
-                          <Select value={selectedDriver} onValueChange={setSelectedDriver}>
-                            <SelectTrigger>
-                              <SelectValue placeholder="Escolha um motorista" />
-                            </SelectTrigger>
-                            <SelectContent>
-                              {drivers.map((driver) => (
-                                <SelectItem key={driver.id} value={driver.id}>
-                                  {driver.name}
-                                </SelectItem>
-                              ))}
-                            </SelectContent>
-                          </Select>
+                          <Label>Link compartilhável</Label>
+                          <div className="flex gap-2">
+                            <Input
+                              readOnly
+                              value={
+                                checklists.find((c) => c.id === selectedChecklist)
+                                  ? getShareLink(
+                                      checklists.find((c) => c.id === selectedChecklist)!.share_token
+                                    )
+                                  : ""
+                              }
+                            />
+                            <Button variant="outline" size="icon" onClick={handleCopyLink}>
+                              <Copy className="h-4 w-4" />
+                            </Button>
+                          </div>
+                          <p className="text-xs text-muted-foreground">
+                            Qualquer motorista com este link pode abrir e preencher o checklist.
+                          </p>
                         </div>
-                        <Button onClick={handleShare} className="w-full">
-                          Compartilhar
-                        </Button>
+
+                        <div className="space-y-2">
+                          <Label>Atribuir a um motorista</Label>
+                          <div className="flex gap-2">
+                            <Select value={selectedDriver} onValueChange={setSelectedDriver}>
+                              <SelectTrigger>
+                                <SelectValue placeholder="Escolha um motorista" />
+                              </SelectTrigger>
+                              <SelectContent>
+                                {drivers.map((driver) => (
+                                  <SelectItem key={driver.id} value={driver.id}>
+                                    {driver.name}
+                                  </SelectItem>
+                                ))}
+                              </SelectContent>
+                            </Select>
+                            <Button onClick={handleShare}>Adicionar</Button>
+                          </div>
+                        </div>
+
+                        {sharedDrivers.length > 0 && (
+                          <div className="space-y-2">
+                            <Label>Compartilhado com</Label>
+                            <div className="space-y-2">
+                              {sharedDrivers.map((s) => (
+                                <div
+                                  key={s.id}
+                                  className="flex items-center justify-between p-2 rounded-lg border"
+                                >
+                                  <span className="text-sm">{s.driver_name}</span>
+                                  <Button
+                                    variant="ghost"
+                                    size="icon"
+                                    onClick={() => handleRemoveShare(s.id)}
+                                  >
+                                    <Trash2 className="h-4 w-4" />
+                                  </Button>
+                                </div>
+                              ))}
+                            </div>
+                          </div>
+                        )}
                       </div>
                     </DialogContent>
                   </Dialog>
