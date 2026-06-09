@@ -1,4 +1,4 @@
-import { LayoutDashboard, Car, Users, ClipboardCheck, Wrench, Fuel, FileText, FileArchive, LogOut } from "lucide-react";
+import { LayoutDashboard, Car, Users, ClipboardCheck, Wrench, Fuel, FileText, FileArchive, CircleDot, LogOut } from "lucide-react";
 import { NavLink } from "@/components/NavLink";
 import { useLocation, useNavigate } from "react-router-dom";
 import {
