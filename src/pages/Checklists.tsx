@@ -183,6 +183,15 @@ export default function Checklists() {
     }
   };
 
+  const getShareLink = (token: string) => `${window.location.origin}/checklist/${token}`;
+
+  const handleCopyLink = () => {
+    const checklist = checklists.find((c) => c.id === selectedChecklist);
+    if (!checklist) return;
+    navigator.clipboard.writeText(getShareLink(checklist.share_token));
+    toast.success("Link copiado para a área de transferência!");
+  };
+
   const handleShare = async () => {
     if (!selectedChecklist || !selectedDriver) return;
 
@@ -194,8 +203,18 @@ export default function Checklists() {
       toast.error("Erro ao compartilhar checklist");
     } else {
       toast.success("Checklist compartilhado com sucesso!");
-      setIsShareDialogOpen(false);
       setSelectedDriver("");
+      fetchSharedDrivers(selectedChecklist);
+    }
+  };
+
+  const handleRemoveShare = async (shareId: string) => {
+    const { error } = await supabase.from("checklist_shares").delete().eq("id", shareId);
+    if (error) {
+      toast.error("Erro ao remover compartilhamento");
+    } else {
+      toast.success("Compartilhamento removido");
+      if (selectedChecklist) fetchSharedDrivers(selectedChecklist);
     }
   };
 
