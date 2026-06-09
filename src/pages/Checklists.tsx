@@ -195,12 +195,21 @@ export default function Checklists() {
   const handleShare = async () => {
     if (!selectedChecklist || !selectedDriver) return;
 
+    if (sharedDrivers.some((s) => s.driver_id === selectedDriver)) {
+      toast.error("Este motorista já tem acesso a este checklist");
+      return;
+    }
+
     const { error } = await supabase
       .from("checklist_shares")
       .insert([{ checklist_id: selectedChecklist, driver_id: selectedDriver }]);
 
     if (error) {
-      toast.error("Erro ao compartilhar checklist");
+      if (error.code === "23505") {
+        toast.error("Este motorista já tem acesso a este checklist");
+      } else {
+        toast.error("Erro ao compartilhar checklist");
+      }
     } else {
       toast.success("Checklist compartilhado com sucesso!");
       setSelectedDriver("");
