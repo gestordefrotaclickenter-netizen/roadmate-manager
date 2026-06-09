@@ -125,6 +125,14 @@ const App = () => (
             }
           />
           <Route
+            path="/tires"
+            element={
+              <ProtectedRoute>
+                <Tires />
+              </ProtectedRoute>
+            }
+          />
+          <Route
             path="/reports"
             element={
               <ProtectedRoute>
